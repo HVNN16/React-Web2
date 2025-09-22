@@ -1,30 +1,55 @@
-import { BrowserRouter, Routes, Route, Link } from "react-router-dom";
+import { BrowserRouter, Routes, Route } from "react-router-dom";
+import NavBar from "./components/NavBar";
+import { Protected, RequireRole } from "./components/Protected";
+
 import Login from "./pages/auth/Login";
 import Register from "./pages/auth/Register";
+
 import UserList from "./pages/user/UserList";
+import AddUser from "./pages/user/AddUser";
+import EditUser from "./pages/user/EditUser";
+
 import CompanyList from "./pages/company/CompanyList";
+import AddCompany from "./pages/company/AddCompany";
+import EditCompany from "./pages/company/EditCompany";
 
-function App() {
-    // 👉 test tạm role
-    const role = "ROLE_ADMIN"; // hoặc "ROLE_USER"
-
+export default function App() {
     return (
         <BrowserRouter>
-            <nav style={{ padding: "10px", background: "#eee" }}>
-                <Link to="/login" style={{ marginRight: "10px" }}>Login</Link>
-                <Link to="/register" style={{ marginRight: "10px" }}>Register</Link>
-                <Link to="/users" style={{ marginRight: "10px" }}>Users</Link>
-                <Link to="/companies">Companies</Link>
-            </nav>
+            <NavBar />
             <Routes>
                 <Route path="/login" element={<Login />} />
                 <Route path="/register" element={<Register />} />
-                {/* truyền role xuống đây 👇 */}
-                <Route path="/users" element={<UserList role={role} />} />
-                <Route path="/companies" element={<CompanyList role={role} />} />
+
+                <Route
+                    path="/"
+                    element={
+                        <Protected>
+                            <div className="p-4">Chào mừng! Chọn Users / Companies ở menu.</div>
+                        </Protected>
+                    }
+                />
+
+                {/* Users */}
+                <Route path="/users" element={<Protected><UserList /></Protected>} />
+                <Route path="/users/add" element={
+                    <Protected><RequireRole role="ADMIN"><AddUser /></RequireRole></Protected>
+                }/>
+                <Route path="/users/edit/:id" element={
+                    <Protected><RequireRole role="ADMIN"><EditUser /></RequireRole></Protected>
+                }/>
+
+                {/* Companies */}
+                <Route path="/companies" element={<Protected><CompanyList /></Protected>} />
+                <Route path="/companies/add" element={
+                    <Protected><RequireRole role="ADMIN"><AddCompany /></RequireRole></Protected>
+                }/>
+                <Route path="/companies/edit/:id" element={
+                    <Protected><RequireRole role="ADMIN"><EditCompany /></RequireRole></Protected>
+                }/>
+
+                <Route path="*" element={<div className="p-4">Not found</div>} />
             </Routes>
         </BrowserRouter>
     );
 }
-
-export default App;
