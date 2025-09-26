@@ -19,7 +19,6 @@ export default function EditUser() {
   useEffect(() => {
     (async () => {
       try {
-        // Lấy thông tin user
         const { data } = await api.get(`/api/users/${id}`);
         setForm({
           name: data.name || "",
@@ -29,7 +28,6 @@ export default function EditUser() {
           companyId: data.company?.id || "",
         });
 
-        // Lấy danh sách company
         const res = await api.get("/api/companies");
         const list = Array.isArray(res.data) ? res.data : res.data.content || [];
         setCompanies(list);
@@ -65,61 +63,79 @@ export default function EditUser() {
   if (loading) return <p className="p-4">Loading...</p>;
 
   return (
-    <div className="max-w-md p-4">
-      <h1 className="text-lg font-semibold mb-3">Edit User</h1>
-      <form onSubmit={submit} className="space-y-3">
-        <Field
-          label="Name"
-          value={form.name}
-          onChange={(v) => setForm({ ...form, name: v })}
-        />
-        <Field
-          label="Email"
-          value={form.email}
-          onChange={(v) => setForm({ ...form, email: v })}
-        />
+    <div className="flex justify-center p-6">
+      <div className="w-full max-w-md bg-white p-6 rounded-xl shadow">
+        <h1 className="text-2xl font-semibold mb-6 text-gray-800">Chỉnh sửa người dùng</h1>
 
-        <div>
-          <label className="block text-sm">Role</label>
-          <select
-            className="w-full border px-3 py-2 rounded"
-            value={form.role}
-            onChange={(e) => setForm({ ...form, role: e.target.value })}
-          >
-            <option value="ROLE_USER">ROLE_USER</option>
-            <option value="ROLE_ADMIN">ROLE_ADMIN</option>
-          </select>
-        </div>
+        <form onSubmit={submit} className="space-y-4">
+          <Field
+            label="Tên"
+            value={form.name}
+            onChange={(v) => setForm({ ...form, name: v })}
+          />
+          <Field
+            label="Email"
+            value={form.email}
+            onChange={(v) => setForm({ ...form, email: v })}
+          />
 
-        <Field
-          type="password"
-          label="New Password (optional)"
-          value={form.password}
-          onChange={(v) => setForm({ ...form, password: v })}
-          required={false}
-        />
+          <div>
+            <label className="block text-sm font-medium text-gray-700 mb-1">Vai trò</label>
+            <select
+              className="w-full border rounded-lg px-3 py-2 focus:ring-2 focus:ring-indigo-500 focus:outline-none"
+              value={form.role}
+              onChange={(e) => setForm({ ...form, role: e.target.value })}
+            >
+              <option value="ROLE_USER">ROLE_USER</option>
+              <option value="ROLE_ADMIN">ROLE_ADMIN</option>
+            </select>
+          </div>
 
-        <div>
-          <label className="block text-sm">Company</label>
-          <select
-            className="w-full border px-3 py-2 rounded"
-            value={form.companyId}
-            onChange={(e) => setForm({ ...form, companyId: e.target.value })}
-            required
-          >
-            <option value="">-- Select Company --</option>
-            {Array.isArray(companies) &&
-              companies.map((c) => (
-                <option key={c.id} value={c.id}>
-                  {c.name}
-                </option>
-              ))}
-          </select>
-        </div>
+          <Field
+            type="password"
+            label="Mật khẩu mới (tùy chọn)"
+            value={form.password}
+            onChange={(v) => setForm({ ...form, password: v })}
+            required={false}
+          />
 
-        {err && <p className="text-red-600 text-sm">{String(err)}</p>}
-        <button className="border px-3 py-2 rounded">Save</button>
-      </form>
+          <div>
+            <label className="block text-sm font-medium text-gray-700 mb-1">Công ty</label>
+            <select
+              className="w-full border rounded-lg px-3 py-2 focus:ring-2 focus:ring-indigo-500 focus:outline-none"
+              value={form.companyId}
+              onChange={(e) => setForm({ ...form, companyId: e.target.value })}
+              required
+            >
+              <option value="">-- Chọn công ty --</option>
+              {Array.isArray(companies) &&
+                companies.map((c) => (
+                  <option key={c.id} value={c.id}>
+                    {c.name}
+                  </option>
+                ))}
+            </select>
+          </div>
+
+          {err && <p className="text-red-600 text-sm">{String(err)}</p>}
+
+          <div className="flex justify-end space-x-3 pt-2">
+            <button
+              type="button"
+              className="px-4 py-2 rounded-lg border text-gray-600 hover:bg-gray-100"
+              onClick={() => nav("/users")}
+            >
+              Hủy
+            </button>
+            <button
+              type="submit"
+              className="px-4 py-2 rounded-lg bg-indigo-600 text-white hover:bg-indigo-700"
+            >
+              Lưu
+            </button>
+          </div>
+        </form>
+      </div>
     </div>
   );
 }
@@ -127,10 +143,10 @@ export default function EditUser() {
 function Field({ label, value, onChange, type = "text", required = true }) {
   return (
     <div>
-      <label className="block text-sm">{label}</label>
+      <label className="block text-sm font-medium text-gray-700 mb-1">{label}</label>
       <input
         type={type}
-        className="w-full border px-3 py-2 rounded"
+        className="w-full border rounded-lg px-3 py-2 focus:ring-2 focus:ring-indigo-500 focus:outline-none"
         value={value}
         onChange={(e) => onChange(e.target.value)}
         required={required}

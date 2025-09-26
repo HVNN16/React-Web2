@@ -21,7 +21,6 @@ export default function Login() {
         setLoading(true);
 
         try {
-            // 👇 GỬI CHÍNH XÁC { email, password }
             const { data } = await api.post("/api/auth/login", {
                 email: form.email.trim(),
                 password: form.password,
@@ -30,13 +29,9 @@ export default function Login() {
             const token = extractToken(data);
             if (!token) throw new Error("Không nhận được token từ máy chủ.");
 
-            // tạm set token để gọi /me
             useAuthStore.getState().login({ token, user: null });
-
-            // lấy profile hiện tại
             const me = await api.get("/api/users/me").then((r) => r.data);
 
-            // lưu vào store & điều hướng
             loginStore({ token, user: me });
             navigate("/");
         } catch (error) {
@@ -56,45 +51,67 @@ export default function Login() {
     };
 
     return (
-        <div className="max-w-sm mx-auto mt-12">
-            <h1 className="text-3xl font-bold mb-4">Đăng nhập</h1>
+        <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-gray-900 via-indigo-900 to-indigo-700 pt-16">
+            <div className="w-full max-w-md bg-gray-900/90 backdrop-blur-md p-8 rounded-2xl shadow-lg">
+                <h1 className="text-2xl font-semibold text-center mb-6 text-white">
+                    Đăng nhập
+                </h1>
 
-            <form onSubmit={onSubmit} className="space-y-3">
-                <div>
-                    <label className="block text-sm">Email</label>
-                    <input
-                        className="w-full border px-3 py-2 rounded"
-                        value={form.email}
-                        onChange={(e) => setForm({ ...form, email: e.target.value })}
-                        autoComplete="username"
-                        required
-                    />
-                </div>
+                <form onSubmit={onSubmit} className="space-y-4">
+                    <div>
+                        <label className="block text-sm font-medium text-gray-300 mb-1">
+                            Email
+                        </label>
+                        <input
+                            className="w-full border border-gray-600 bg-gray-800 text-white px-3 py-2 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500"
+                            value={form.email}
+                            onChange={(e) =>
+                                setForm({ ...form, email: e.target.value })
+                            }
+                            autoComplete="username"
+                            required
+                        />
+                    </div>
 
-                <div>
-                    <label className="block text-sm">Password</label>
-                    <input
-                        type="password"
-                        className="w-full border px-3 py-2 rounded"
-                        value={form.password}
-                        onChange={(e) => setForm({ ...form, password: e.target.value })}
-                        autoComplete="current-password"
-                        required
-                    />
-                </div>
+                    <div>
+                        <label className="block text-sm font-medium text-gray-300 mb-1">
+                            Mật khẩu
+                        </label>
+                        <input
+                            type="password"
+                            className="w-full border border-gray-600 bg-gray-800 text-white px-3 py-2 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500"
+                            value={form.password}
+                            onChange={(e) =>
+                                setForm({ ...form, password: e.target.value })
+                            }
+                            autoComplete="current-password"
+                            required
+                        />
+                    </div>
 
-                {err && <p className="text-red-600 text-sm">{String(err)}</p>}
+                    {err && (
+                        <p className="text-red-500 text-sm text-center">
+                            {String(err)}
+                        </p>
+                    )}
 
-                <button
-                    className="w-full border px-3 py-2 rounded disabled:opacity-60"
-                    disabled={loading}
-                >
-                    {loading ? "Đang đăng nhập..." : "Login"}
-                </button>
-            </form>
+                    <button
+                        className="w-full bg-indigo-600 text-white py-2 rounded-lg font-medium hover:bg-indigo-700 transition disabled:opacity-60"
+                        disabled={loading}
+                    >
+                        {loading ? "Đang đăng nhập..." : "Đăng nhập"}
+                    </button>
+                </form>
 
-            <div className="mt-3 text-sm">
-                Chưa có tài khoản? <Link to="/register" className="underline">Register</Link>
+                <p className="mt-4 text-center text-sm text-gray-400">
+                    Chưa có tài khoản?{" "}
+                    <Link
+                        to="/register"
+                        className="text-indigo-400 hover:underline font-medium"
+                    >
+                        Đăng ký
+                    </Link>
+                </p>
             </div>
         </div>
     );
