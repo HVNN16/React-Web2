@@ -19,6 +19,7 @@ export default function EditUser() {
   useEffect(() => {
     (async () => {
       try {
+        // ✅ Lấy thông tin user
         const { data } = await api.get(`/api/users/${id}`);
         setForm({
           name: data.name || "",
@@ -28,11 +29,12 @@ export default function EditUser() {
           companyId: data.company?.id || "",
         });
 
+        // ✅ Lấy danh sách công ty
         const res = await api.get("/api/companies");
         const list = Array.isArray(res.data) ? res.data : res.data.content || [];
         setCompanies(list);
       } catch (e) {
-        console.error(e);
+        console.error("Load data failed:", e);
       } finally {
         setLoading(false);
       }
@@ -53,6 +55,7 @@ export default function EditUser() {
         payload.password = form.password;
       }
 
+      // ✅ Update user
       await api.put(`/api/users/${id}`, payload);
       nav("/users");
     } catch (error) {
@@ -66,7 +69,9 @@ export default function EditUser() {
   return (
     <div className="min-h-screen bg-gradient-to-br from-indigo-700 to-purple-700 p-6 flex items-center justify-center">
       <div className="w-full max-w-lg bg-[#0f172a] rounded-2xl shadow-xl p-8">
-        <h1 className="text-3xl font-bold mb-6 text-center text-white">Chỉnh sửa người dùng</h1>
+        <h1 className="text-3xl font-bold mb-6 text-center text-white">
+          Chỉnh sửa người dùng
+        </h1>
 
         <form onSubmit={submit} className="space-y-4">
           <Field
@@ -81,7 +86,9 @@ export default function EditUser() {
           />
 
           <div>
-            <label className="block text-sm font-medium text-gray-200 mb-1">Vai trò</label>
+            <label className="block text-sm font-medium text-gray-200 mb-1">
+              Vai trò
+            </label>
             <select
               className="w-full border border-gray-600 rounded-lg px-3 py-2 bg-[#1e293b] text-white focus:ring-2 focus:ring-indigo-500 focus:outline-none"
               value={form.role}
@@ -101,7 +108,9 @@ export default function EditUser() {
           />
 
           <div>
-            <label className="block text-sm font-medium text-gray-200 mb-1">Công ty</label>
+            <label className="block text-sm font-medium text-gray-200 mb-1">
+              Công ty
+            </label>
             <select
               className="w-full border border-gray-600 rounded-lg px-3 py-2 bg-[#1e293b] text-white focus:ring-2 focus:ring-indigo-500 focus:outline-none"
               value={form.companyId}
@@ -118,7 +127,11 @@ export default function EditUser() {
             </select>
           </div>
 
-          {err && <p className="text-red-500 text-sm">{String(err)}</p>}
+          {err && (
+            <p className="text-red-500 text-sm bg-red-500/20 px-3 py-2 rounded-lg">
+              {String(err)}
+            </p>
+          )}
 
           <div className="flex justify-end space-x-3 pt-2">
             <button
@@ -144,7 +157,9 @@ export default function EditUser() {
 function Field({ label, value, onChange, type = "text", required = true }) {
   return (
     <div>
-      <label className="block text-sm font-medium text-gray-200 mb-1">{label}</label>
+      <label className="block text-sm font-medium text-gray-200 mb-1">
+        {label}
+      </label>
       <input
         type={type}
         className="w-full border border-gray-600 rounded-lg px-3 py-2 bg-[#1e293b] text-white focus:ring-2 focus:ring-indigo-500 focus:outline-none"

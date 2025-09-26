@@ -1,3 +1,4 @@
+// src/pages/user/AddUser.jsx
 import { useState, useEffect } from "react";
 import api from "../../api/api";
 import { useNavigate } from "react-router-dom";
@@ -52,61 +53,86 @@ export default function AddUser() {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-indigo-700 to-purple-700 p-6 flex items-center justify-center">
-      <div className="w-full max-w-lg bg-[#0f172a] rounded-2xl shadow-xl p-8">
-        <h1 className="text-3xl font-bold mb-6 text-center text-white">Thêm người dùng</h1>
+    <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-indigo-700 to-purple-700 p-6">
+      {/* form container */}
+      <div className="w-full max-w-lg bg-white/10 backdrop-blur-lg border border-white/20 rounded-2xl shadow-2xl p-8">
+        <h1 className="text-3xl font-bold mb-6 text-center text-white">
+          Thêm Người Dùng
+        </h1>
 
         <form onSubmit={submit} className="space-y-4">
           <Field
             label="Tên"
+            placeholder="Nhập tên người dùng"
             value={form.name}
             onChange={(v) => setForm({ ...form, name: v })}
           />
           <Field
             label="Email"
+            placeholder="you@example.com"
             value={form.email}
             onChange={(v) => setForm({ ...form, email: v })}
           />
 
           <div>
-            <label className="block text-sm font-medium text-gray-200 mb-1">Vai trò</label>
+            <label className="block text-sm font-medium text-gray-200 mb-1">
+              Vai trò
+            </label>
             <select
-              className="w-full border border-gray-600 rounded-lg px-3 py-2 bg-[#1e293b] text-white focus:ring-2 focus:ring-indigo-500 focus:outline-none"
+              className="w-full border border-gray-600 rounded-lg px-3 py-2 bg-white/20 text-white 
+                         focus:ring-2 focus:ring-indigo-500 focus:outline-none appearance-none"
               value={form.role}
               onChange={(e) => setForm({ ...form, role: e.target.value })}
             >
-              <option value="ROLE_USER">ROLE_USER</option>
-              <option value="ROLE_ADMIN">ROLE_ADMIN</option>
+              <option className="bg-[#1e1e2f] text-white" value="ROLE_USER">
+                ROLE_USER
+              </option>
+              <option className="bg-[#1e1e2f] text-white" value="ROLE_ADMIN">
+                ROLE_ADMIN
+              </option>
             </select>
           </div>
 
           <Field
             type="password"
             label="Mật khẩu"
+            placeholder="••••••••"
             value={form.password}
             onChange={(v) => setForm({ ...form, password: v })}
             required
           />
 
           <div>
-            <label className="block text-sm font-medium text-gray-200 mb-1">Công ty</label>
+            <label className="block text-sm font-medium text-gray-200 mb-1">
+              Công ty
+            </label>
             <select
-              className="w-full border border-gray-600 rounded-lg px-3 py-2 bg-[#1e293b] text-white focus:ring-2 focus:ring-indigo-500 focus:outline-none"
+              className="w-full border border-gray-600 rounded-lg px-3 py-2 bg-white/20 text-white 
+                         focus:ring-2 focus:ring-indigo-500 focus:outline-none appearance-none"
               value={form.companyId}
               onChange={(e) => setForm({ ...form, companyId: e.target.value })}
-              required
             >
-              <option value="">-- Chọn công ty --</option>
+              <option className="bg-[#1e1e2f] text-white" value="">
+                -- Chọn công ty --
+              </option>
               {Array.isArray(companies) &&
                 companies.map((c) => (
-                  <option key={c.id} value={c.id}>
+                  <option
+                    key={c.id}
+                    className="bg-[#1e1e2f] text-white"
+                    value={c.id}
+                  >
                     {c.name}
                   </option>
                 ))}
             </select>
           </div>
 
-          {err && <p className="text-red-500 text-sm">{String(err)}</p>}
+          {err && (
+            <p className="text-red-400 text-sm text-center bg-red-500/20 py-2 rounded-lg">
+              {String(err)}
+            </p>
+          )}
 
           <div className="flex justify-end space-x-3 pt-2">
             <button
@@ -118,7 +144,7 @@ export default function AddUser() {
             </button>
             <button
               type="submit"
-              className="px-4 py-2 rounded-lg bg-indigo-600 text-white hover:bg-indigo-700 transition"
+              className="px-4 py-2 rounded-lg bg-gradient-to-r from-indigo-500 to-purple-600 text-white font-semibold hover:opacity-90 transition"
             >
               Tạo
             </button>
@@ -129,13 +155,25 @@ export default function AddUser() {
   );
 }
 
-function Field({ label, value, onChange, type = "text", required = true }) {
+function Field({
+  label,
+  value,
+  onChange,
+  type = "text",
+  required = true,
+  placeholder,
+}) {
   return (
     <div>
-      <label className="block text-sm font-medium text-gray-200 mb-1">{label}</label>
+      <label className="block text-sm font-medium text-gray-200 mb-1">
+        {label}
+      </label>
       <input
         type={type}
-        className="w-full border border-gray-600 rounded-lg px-3 py-2 bg-[#1e293b] text-white focus:ring-2 focus:ring-indigo-500 focus:outline-none"
+        placeholder={placeholder}
+        className="w-full border border-gray-600 rounded-lg px-3 py-2 
+                   bg-white/20 text-white placeholder-gray-400 
+                   focus:ring-2 focus:ring-indigo-500 focus:outline-none"
         value={value}
         onChange={(e) => onChange(e.target.value)}
         required={required}

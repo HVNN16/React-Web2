@@ -35,8 +35,8 @@ export default function EditCompany() {
     return <p className="p-4 text-center text-gray-200">Đang tải dữ liệu...</p>;
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-indigo-700 to-purple-700 p-6 flex items-center justify-center">
-      <div className="w-full max-w-lg bg-[#0f172a] rounded-2xl shadow-xl p-8">
+    <div className="flex items-center justify-center p-6">
+      <div className="w-full max-w-lg bg-white/10 backdrop-blur-lg rounded-2xl shadow-xl p-8">
         <h1 className="text-3xl font-bold mb-6 text-center text-white">
           Chỉnh sửa Công Ty
         </h1>
@@ -53,7 +53,11 @@ export default function EditCompany() {
             onChange={(v) => setForm({ ...form, address: v })}
           />
 
-          {err && <p className="text-red-500 text-sm">{String(err)}</p>}
+          {err && (
+            <p className="text-red-400 text-sm text-center bg-red-500/20 py-2 rounded-lg">
+              {String(err)}
+            </p>
+          )}
 
           <div className="flex justify-end space-x-3 pt-2">
             <button
@@ -65,7 +69,7 @@ export default function EditCompany() {
             </button>
             <button
               type="submit"
-              className="px-4 py-2 rounded-lg bg-indigo-600 text-white hover:bg-indigo-700 transition"
+              className="px-4 py-2 rounded-lg bg-gradient-to-r from-indigo-500 to-purple-600 text-white font-semibold hover:opacity-90 transition"
             >
               Lưu
             </button>
@@ -79,10 +83,12 @@ export default function EditCompany() {
 function Field({ label, value, onChange, type = "text" }) {
   return (
     <div>
-      <label className="block text-sm font-medium text-gray-200 mb-1">{label}</label>
+      <label className="block text-sm font-medium text-gray-200 mb-1">
+        {label}
+      </label>
       <input
         type={type}
-        className="w-full border border-gray-600 rounded-lg px-3 py-2 bg-[#1e293b] text-white focus:ring-2 focus:ring-indigo-500 focus:outline-none"
+        className="w-full border border-gray-600 rounded-lg px-3 py-2 bg-white/20 text-white placeholder-gray-400 focus:ring-2 focus:ring-indigo-500 focus:outline-none"
         value={value}
         onChange={(e) => onChange(e.target.value)}
         required

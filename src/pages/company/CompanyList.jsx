@@ -11,7 +11,7 @@ export default function CompanyList() {
     size: 20,
   });
   const [loading, setLoading] = useState(true);
-  const isAdmin = useAuthStore((s) => s.hasRole)("ADMIN");
+  const isAdmin = useAuthStore((s) => s.hasRole("ADMIN"));
 
   const fetchData = async (p = 0) => {
     const { data } = await api.get("/api/companies", {
@@ -31,17 +31,19 @@ export default function CompanyList() {
   }, []);
 
   const onDelete = async (id) => {
-    if (!confirm("Xoá company này?")) return;
+    if (!confirm("Xoá công ty này?")) return;
     await api.delete(`/api/companies/${id}`);
     await fetchData(page.number);
   };
 
   if (loading)
-    return <p className="p-4 text-center text-gray-600">Đang tải dữ liệu...</p>;
+    return (
+      <p className="p-4 text-center text-gray-200">Đang tải dữ liệu...</p>
+    );
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-indigo-700 to-purple-700 p-6 flex items-center justify-center">
-      <div className="w-full max-w-5xl bg-[#0f172a] rounded-2xl shadow-xl p-8">
+    <div className="flex items-center justify-center p-6 min-h-screen">
+      <div className="w-full max-w-5xl bg-white/10 backdrop-blur-lg rounded-2xl shadow-xl p-8">
         <h1 className="text-3xl font-bold mb-6 text-center text-white">
           Danh sách Công Ty
         </h1>

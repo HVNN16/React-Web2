@@ -1,3 +1,4 @@
+// src/pages/company/AddCompany.jsx
 import { useState } from "react";
 import api from "../../api/api";
 import { useNavigate } from "react-router-dom";
@@ -14,13 +15,13 @@ export default function AddCompany() {
       await api.post("/api/companies", form);
       nav("/companies");
     } catch (error) {
-      setErr(error?.response?.data || "Create failed");
+      setErr(error?.response?.data || "Tạo công ty thất bại");
     }
   };
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-indigo-700 to-purple-700">
-      <div className="w-full max-w-lg bg-[#0f172a] p-10 rounded-2xl shadow-xl">
+    <div className="flex items-center justify-center min-h-screen p-6">
+      <div className="w-full max-w-lg bg-white/10 backdrop-blur-lg rounded-2xl shadow-xl p-8">
         <h1 className="text-3xl font-bold mb-6 text-center text-white">
           Thêm Công Ty
         </h1>
@@ -30,11 +31,13 @@ export default function AddCompany() {
             label="Tên công ty"
             value={form.name}
             onChange={(v) => setForm({ ...form, name: v })}
+            placeholder="Nhập tên công ty"
           />
           <Field
             label="Địa chỉ"
             value={form.address}
             onChange={(v) => setForm({ ...form, address: v })}
+            placeholder="Nhập địa chỉ"
           />
 
           {err && (
@@ -43,26 +46,38 @@ export default function AddCompany() {
             </p>
           )}
 
-          <button
-            className="w-full py-3 bg-indigo-500 hover:bg-indigo-600 rounded-lg text-white font-semibold text-lg transition"
-          >
-            Tạo mới
-          </button>
+          <div className="flex justify-end space-x-3 pt-2">
+            <button
+              type="button"
+              className="px-4 py-2 rounded-lg border border-gray-500 text-gray-200 hover:bg-gray-700 transition"
+              onClick={() => nav("/companies")}
+            >
+              Hủy
+            </button>
+            <button
+              type="submit"
+              className="px-4 py-2 rounded-lg bg-gradient-to-r from-indigo-500 to-purple-600 text-white font-semibold hover:opacity-90 transition"
+            >
+              Tạo mới
+            </button>
+          </div>
         </form>
       </div>
     </div>
   );
 }
 
-function Field({ label, value, onChange, type = "text" }) {
+function Field({ label, value, onChange, type = "text", placeholder }) {
   return (
     <div>
-      <label className="block text-sm font-medium text-gray-300 mb-2">
+      <label className="block text-sm font-medium text-gray-200 mb-2">
         {label}
       </label>
       <input
         type={type}
-        className="w-full p-3 rounded-lg bg-slate-100 text-gray-900 focus:outline-none focus:ring-2 focus:ring-indigo-500"
+        placeholder={placeholder}
+        className="w-full p-3 rounded-lg bg-white/20 text-white placeholder-gray-400 
+                   focus:outline-none focus:ring-2 focus:ring-indigo-400"
         value={value}
         onChange={(e) => onChange(e.target.value)}
         required
