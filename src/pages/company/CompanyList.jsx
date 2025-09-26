@@ -1,59 +1,111 @@
-import { useEffect, useState } from "react";
+import { useState } from "react";
+import { useNavigate } from "react-router-dom";
+import { Building2, MapPin, Loader2, Save } from "lucide-react";
 import api from "../../api/api";
-import { Link } from "react-router-dom";
-import { useAuthStore } from "../../store";
+import { motion } from "framer-motion";
 
-export default function CompanyList() {
-    const [page, setPage] = useState({ content: [], totalElements: 0, number: 0, size: 20 });
-    const [loading, setLoading] = useState(true);
-    const isAdmin = useAuthStore((s) => s.hasRole)("ADMIN");
+export default function AddCompany() {
+  const navigate = useNavigate();
+  const [form, setForm] = useState({ name: "", address: "" });
+  const [err, setErr] = useState("");
+  const [loading, setLoading] = useState(false);
 
-    const fetchData = async (p = 0) => {
-        const { data } = await api.get("/api/companies", { params: { page: p, size: page.size } });
-        setPage(data);
-    };
+  const submit = async (e) => {
+    e.preventDefault();
+    setErr("");
+    setLoading(true);
 
-    useEffect(() => { (async () => { try { await fetchData(0); } finally { setLoading(false); } })(); }, []);
+    try {
+      await api.post("/api/companies", {
+        name: form.name.trim(),
+        address: form.address.trim(),
+      });
+      navigate("/companies");
+    } catch (error) {
+      setErr(
+        typeof error?.response?.data === "string"
+          ? error.response.data
+          : "Tạo công ty thất bại"
+      );
+    } finally {
+      setLoading(false);
+    }
+  };
 
-    const onDelete = async (id) => {
-        if (!confirm("Xoá company này?")) return;
-        await api.delete(`/api/companies/${id}`);
-        await fetchData(page.number);
-    };
+  return (
+    <div className="h-screen w-screen flex items-center justify-center bg-gradient-to-br from-gray-900 via-indigo-900 to-blue-900 p-4">
+      <motion.div
+        initial={{ opacity: 0, y: 20 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.6, ease: "easeOut" }}
+        className="relative bg-gray-800/80 backdrop-blur-xl shadow-xl rounded-2xl p-8 w-full max-w-md border border-gray-700/50"
+      >
+        <h1 className="text-4xl font-bold text-center text-white mb-3 font-[Inter] tracking-tight">
+          Thêm công ty
+        </h1>
+        <p className="text-center text-gray-300 mb-6 text-base font-[Inter]">
+          Nhập thông tin để tạo công ty mới.
+        </p>
 
-    if (loading) return <p className="p-4">Loading...</p>;
+        <form onSubmit={submit} className="space-y-5">
+          {/* Company Name */}
+          <div className="relative">
+            <Building2 className="absolute left-3 top-3.5 text-gray-400 w-5 h-5" />
+            <input
+              type="text"
+              className="w-full bg-gray-900/50 border border-gray-600 pl-10 pr-4 py-3 rounded-lg text-white placeholder-gray-500 focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-300"
+              value={form.name}
+              onChange={(e) => setForm({ ...form, name: e.target.value })}
+              required
+              placeholder="Tên công ty"
+            />
+          </div>
 
-    return (
-        <div className="p-4">
-            <h1 className="text-lg font-semibold mb-3">Companies</h1>
-            <table className="w-full border">
-                <thead>
-                <tr className="bg-gray-50">
-                    <th className="border p-2">ID</th>
-                    <th className="border p-2">Name</th>
-                    <th className="border p-2">Address</th>
-                    {isAdmin && <th className="border p-2">Actions</th>}
-                </tr>
-                </thead>
-                <tbody>
-                {page.content.map((c) => (
-                    <tr key={c.id}>
-                        <td className="border p-2">{c.id}</td>
-                        <td className="border p-2">{c.name}</td>
-                        <td className="border p-2">{c.address}</td>
-                        {isAdmin && (
-                            <td className="border p-2 space-x-2">
-                                <Link className="underline" to={`/companies/edit/${c.id}`}>Edit</Link>
-                                <button className="text-red-600 underline" onClick={() => onDelete(c.id)}>Delete</button>
-                            </td>
-                        )}
-                    </tr>
-                ))}
-                {page.content.length === 0 && (
-                    <tr><td className="border p-2" colSpan={isAdmin?4:3}>No data</td></tr>
-                )}
-                </tbody>
-            </table>
-        </div>
-    );
+          {/* Company Address */}
+          <div className="relative">
+            <MapPin className="absolute left-3 top-3.5 text-gray-400 w-5 h-5" />
+            <input
+              type="text"
+              className="w-full bg-gray-900/50 border border-gray-600 pl-10 pr-4 py-3 rounded-lg text-white placeholder-gray-500 focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-300"
+              value={form.address}
+              onChange={(e) => setForm({ ...form, address: e.target.value })}
+              required
+              placeholder="Địa chỉ"
+            />
+          </div>
+
+          {/* Error message */}
+          {err && (
+            <motion.p
+              initial={{ opacity: 0, y: 10 }}
+              animate={{ opacity: 1, y: 0 }}
+              className="text-red-400 text-sm text-center font-medium bg-red-900/20 py-2 rounded-lg"
+            >
+              {String(err)}
+            </motion.p>
+          )}
+
+          {/* Submit button */}
+          <motion.button
+            whileHover={{ scale: 1.07, boxShadow: "0 0 25px rgba(59, 130, 246, 0.8)" }}
+            whileTap={{ scale: 0.95 }}
+            className="w-full bg-gradient-to-r from-blue-700 to-blue-800 text-white py-4 rounded-lg text-xl font-bold shadow-xl hover:from-blue-800 hover:to-blue-900 transition-all duration-300 disabled:opacity-50 flex items-center justify-center gap-2"
+            disabled={loading}
+          >
+            {loading ? (
+              <>
+                <Loader2 className="animate-spin h-6 w-6" />
+                Đang tạo...
+              </>
+            ) : (
+              <>
+                <Save className="w-6 h-6" />
+                Tạo công ty
+              </>
+            )}
+          </motion.button>
+        </form>
+      </motion.div>
+    </div>
+  );
 }

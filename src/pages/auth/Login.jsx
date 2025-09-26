@@ -1,101 +1,187 @@
-// src/pages/auth/Login.jsx
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useNavigate, Link } from "react-router-dom";
+import { Mail, Lock, Eye, EyeOff, Loader2, LogIn } from "lucide-react";
 import api from "../../api/api";
 import { useAuthStore } from "../../store";
+import { motion } from "framer-motion";
 
 export default function Login() {
-    const navigate = useNavigate();
-    const loginStore = useAuthStore((s) => s.login);
-    const [form, setForm] = useState({ email: "", password: "" });
-    const [err, setErr] = useState("");
-    const [loading, setLoading] = useState(false);
+  const navigate = useNavigate();
+  const loginStore = useAuthStore((s) => s.login);
+  const [form, setForm] = useState({ email: "", password: "", remember: false });
+  const [err, setErr] = useState("");
+  const [loading, setLoading] = useState(false);
+  const [showPass, setShowPass] = useState(false);
 
-    const extractToken = (data) =>
-        data?.accessToken || data?.token || data?.jwt || null;
+  useEffect(() => {
+    const savedEmail = localStorage.getItem("savedEmail");
+    if (savedEmail) setForm((f) => ({ ...f, email: savedEmail, remember: true }));
+  }, []);
 
-    const onSubmit = async (e) => {
-        e.preventDefault();
-        if (loading) return;
-        setErr("");
-        setLoading(true);
+  const extractToken = (data) =>
+    data?.accessToken || data?.token || data?.jwt || null;
 
-        try {
-            // 👇 GỬI CHÍNH XÁC { email, password }
-            const { data } = await api.post("/api/auth/login", {
-                email: form.email.trim(),
-                password: form.password,
-            });
+  const validateEmail = (email) =>
+    /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
 
-            const token = extractToken(data);
-            if (!token) throw new Error("Không nhận được token từ máy chủ.");
+  const onSubmit = async (e) => {
+    e.preventDefault();
+    if (loading) return;
 
-            // tạm set token để gọi /me
-            useAuthStore.getState().login({ token, user: null });
+    if (!validateEmail(form.email)) {
+      setErr("Email không hợp lệ!");
+      return;
+    }
 
-            // lấy profile hiện tại
-            const me = await api.get("/api/users/me").then((r) => r.data);
+    setErr("");
+    setLoading(true);
 
-            // lưu vào store & điều hướng
-            loginStore({ token, user: me });
-            navigate("/");
-        } catch (error) {
-            const status = error?.response?.status;
-            if (status === 401) setErr("Sai email hoặc mật khẩu.");
-            else setErr(
-                typeof error?.response?.data === "string"
-                    ? error.response.data
-                    : "Login failed"
-            );
-            try {
-                useAuthStore.getState().logout();
-            } catch {}
-        } finally {
-            setLoading(false);
-        }
-    };
+    try {
+      const { data } = await api.post("/api/auth/login", {
+        email: form.email.trim(),
+        password: form.password,
+      });
 
-    return (
-        <div className="max-w-sm mx-auto mt-12">
-            <h1 className="text-3xl font-bold mb-4">Đăng nhập</h1>
+      const token = extractToken(data);
+      if (!token) throw new Error("Không nhận được token từ máy chủ.");
 
-            <form onSubmit={onSubmit} className="space-y-3">
-                <div>
-                    <label className="block text-sm">Email</label>
-                    <input
-                        className="w-full border px-3 py-2 rounded"
-                        value={form.email}
-                        onChange={(e) => setForm({ ...form, email: e.target.value })}
-                        autoComplete="username"
-                        required
-                    />
-                </div>
+      if (form.remember) localStorage.setItem("savedEmail", form.email);
+      else localStorage.removeItem("savedEmail");
 
-                <div>
-                    <label className="block text-sm">Password</label>
-                    <input
-                        type="password"
-                        className="w-full border px-3 py-2 rounded"
-                        value={form.password}
-                        onChange={(e) => setForm({ ...form, password: e.target.value })}
-                        autoComplete="current-password"
-                        required
-                    />
-                </div>
+      useAuthStore.getState().login({ token, user: null });
+      const me = await api.get("/api/users/me").then((r) => r.data);
 
-                {err && <p className="text-red-600 text-sm">{String(err)}</p>}
+      loginStore({ token, user: me });
+      navigate("/");
+    } catch (error) {
+      const status = error?.response?.status;
+      if (status === 401) setErr("Sai email hoặc mật khẩu.");
+      else
+        setErr(
+          typeof error?.response?.data === "string"
+            ? error.response.data
+            : "Đăng nhập thất bại"
+        );
+      try {
+        useAuthStore.getState().logout();
+      } catch {}
+    } finally {
+      setLoading(false);
+    }
+  };
 
-                <button
-                    className="w-full border px-3 py-2 rounded disabled:opacity-60"
-                    disabled={loading}
-                >
-                    {loading ? "Đang đăng nhập..." : "Login"}
-                </button>
-            </form>
+  return (
+    <div className="h-screen w-screen flex items-center justify-center bg-gradient-to-br from-gray-900 via-indigo-900 to-blue-900 p-4">
+      <motion.div
+        initial={{ opacity: 0, y: 20 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.6, ease: "easeOut" }}
+        className="relative bg-gray-800/80 backdrop-blur-xl shadow-xl rounded-2xl p-8 w-full max-w-md border border-gray-700/50"
+      >
+        <h1 className="text-4xl font-bold text-center text-white mb-3 font-[Inter] tracking-tight">
+          Đăng nhập
+        </h1>
+        <p className="text-center text-gray-300 mb-6 text-base font-[Inter]">
+          Chào mừng bạn quay lại! Hãy bắt đầu ngay.
+        </p>
 
-            <div className="mt-3 text-sm">
-                Chưa có tài khoản? <Link to="/register" className="underline">Register</Link>
-            </div>
+        <form onSubmit={onSubmit} className="space-y-5">
+          {/* Email */}
+          <div className="relative">
+            <Mail className="absolute left-3 top-3.5 text-gray-400 w-5 h-5" />
+            <input
+              type="email"
+              className="w-full bg-gray-900/50 border border-gray-600 pl-10 pr-4 py-3 rounded-lg text-white placeholder-gray-500 focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-300"
+              value={form.email}
+              onChange={(e) => setForm({ ...form, email: e.target.value })}
+              autoComplete="username"
+              required
+              placeholder="Email"
+            />
+          </div>
+
+          {/* Password */}
+          <div className="relative">
+            <Lock className="absolute left-3 top-3.5 text-gray-400 w-5 h-5" />
+            <input
+              type={showPass ? "text" : "password"}
+              className="w-full bg-gray-900/50 border border-gray-600 pl-10 pr-10 py-3 rounded-lg text-white placeholder-gray-500 focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-300"
+              value={form.password}
+              onChange={(e) => setForm({ ...form, password: e.target.value })}
+              autoComplete="current-password"
+              required
+              placeholder="Mật khẩu"
+            />
+            <button
+              type="button"
+              onClick={() => setShowPass(!showPass)}
+              className="absolute right-3 top-2.5 text-gray-400 hover:text-blue-400 transition-colors duration-200"
+            >
+              {showPass ? <EyeOff className="w-6 h-6" /> : <Eye className="w-6 h-6" />}
+            </button>
+          </div>
+
+          {/* Remember me */}
+          <div className="flex items-center justify-between text-sm text-gray-400">
+            <label className="flex items-center gap-2">
+              <input
+                type="checkbox"
+                checked={form.remember}
+                onChange={(e) =>
+                  setForm({ ...form, remember: e.target.checked })
+                }
+                className="accent-blue-500"
+              />
+              Ghi nhớ đăng nhập
+            </label>
+            <Link to="/forgot-password" className="hover:text-blue-400 transition-colors">
+              Quên mật khẩu?
+            </Link>
+          </div>
+
+          {/* Error message */}
+          {err && (
+            <motion.p
+              initial={{ opacity: 0, y: 10 }}
+              animate={{ opacity: 1, y: 0 }}
+              className="text-red-400 text-sm text-center font-medium bg-red-900/20 py-2 rounded-lg"
+            >
+              {String(err)}
+            </motion.p>
+          )}
+
+          {/* Login button */}
+          <motion.button
+            whileHover={{ scale: 1.07, boxShadow: "0 0 25px rgba(59, 130, 246, 0.8)" }}
+            whileTap={{ scale: 0.95 }}
+            className="w-full bg-gradient-to-r from-blue-700 to-blue-800 text-white py-4 rounded-lg text-xl font-bold shadow-xl hover:from-blue-800 hover:to-blue-900 transition-all duration-300 disabled:opacity-50 flex items-center justify-center gap-2"
+            disabled={loading}
+          >
+            {loading ? (
+              <>
+                <Loader2 className="animate-spin h-6 w-6" />
+                Đang đăng nhập...
+              </>
+            ) : (
+              <>
+                <LogIn className="w-6 h-6" />
+                Đăng nhập
+              </>
+            )}
+          </motion.button>
+        </form>
+
+        {/* Register */}
+        <div className="mt-8 text-center text-base font-[Inter]">
+          <span className="text-gray-400">Chưa có tài khoản? </span>
+          <Link
+            to="/register"
+            className="text-blue-300 font-semibold hover:text-blue-200 hover:underline transition-all duration-200"
+          >
+            Đăng ký ngay
+          </Link>
         </div>
-    );
+      </motion.div>
+    </div>
+  );
 }
