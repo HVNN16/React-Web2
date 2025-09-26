@@ -36,61 +36,73 @@ export default function UserList() {
     await fetchData(page.number);
   };
 
-  if (loading) return <p className="p-4">Loading...</p>;
+  if (loading)
+    return <p className="p-4 text-center text-gray-200">Đang tải dữ liệu...</p>;
 
   return (
-    <div className="max-w-4xl mx-auto p-4">
-      <h1 className="text-lg font-semibold mb-4">Users</h1>
-      <div className="overflow-x-auto bg-white shadow rounded-lg">
-        <table className="w-full border-collapse">
-          <thead>
-            <tr className="bg-gray-50 text-left">
-              <th className="border px-4 py-2">ID</th>
-              <th className="border px-4 py-2">Name</th>
-              <th className="border px-4 py-2">Email</th>
-              <th className="border px-4 py-2">Role</th>
-              <th className="border px-4 py-2">Company</th>
-              {isAdmin && <th className="border px-4 py-2">Actions</th>}
-            </tr>
-          </thead>
-          <tbody>
-            {page.content.map((u) => (
-              <tr key={u.id} className="hover:bg-gray-50">
-                <td className="border px-4 py-2">{u.id}</td>
-                <td className="border px-4 py-2">{u.name}</td>
-                <td className="border px-4 py-2">{u.email}</td>
-                <td className="border px-4 py-2">{u.role}</td>
-                <td className="border px-4 py-2">{u.company?.name || "-"}</td>
+    <div className="min-h-screen bg-gradient-to-br from-indigo-700 to-purple-700 p-6 flex items-center justify-center">
+      <div className="w-full max-w-5xl bg-[#0f172a] rounded-2xl shadow-xl p-8">
+        <h1 className="text-3xl font-bold mb-6 text-center text-white">Danh sách Người dùng</h1>
+
+        <div className="overflow-x-auto">
+          <table className="w-full text-sm border-collapse">
+            <thead className="bg-indigo-600 text-white">
+              <tr>
+                <th className="px-4 py-3 border border-indigo-500">ID</th>
+                <th className="px-4 py-3 border border-indigo-500">Tên</th>
+                <th className="px-4 py-3 border border-indigo-500">Email</th>
+                <th className="px-4 py-3 border border-indigo-500">Vai trò</th>
+                <th className="px-4 py-3 border border-indigo-500">Công ty</th>
                 {isAdmin && (
-                  <td className="border px-4 py-2 space-x-3">
-                    <Link
-                      className="text-blue-600 hover:underline"
-                      to={`/users/edit/${u.id}`}
-                    >
-                      Edit
-                    </Link>
-                    <button
-                      className="text-red-600 hover:underline"
-                      onClick={() => onDelete(u.id)}
-                    >
-                      Delete
-                    </button>
-                  </td>
+                  <th className="px-4 py-3 border border-indigo-500 text-center">
+                    Thao tác
+                  </th>
                 )}
               </tr>
-            ))}
-            {page.content.length === 0 && (
-              <tr>
-                <td
-                  className="border px-4 py-2 text-center text-gray-500"
-                  colSpan={isAdmin ? 6 : 5}
+            </thead>
+            <tbody>
+              {page.content.map((u) => (
+                <tr
+                  key={u.id}
+                  className="hover:bg-indigo-900/40 transition-colors"
                 >
-                  No data
-                </td>
-              </tr>
-            )}
-          </tbody>
-        </table>
+                  <td className="px-4 py-3 border border-gray-700 text-gray-200">{u.id}</td>
+                  <td className="px-4 py-3 border border-gray-700 font-medium text-white">{u.name}</td>
+                  <td className="px-4 py-3 border border-gray-700 text-gray-300">{u.email}</td>
+                  <td className="px-4 py-3 border border-gray-700 text-gray-300">{u.role}</td>
+                  <td className="px-4 py-3 border border-gray-700 text-gray-300">{u.company?.name || "-"}</td>
+                  {isAdmin && (
+                    <td className="px-4 py-3 border border-gray-700 text-center space-x-3">
+                      <Link
+                        className="inline-block bg-blue-500 hover:bg-blue-600 text-white px-3 py-1 rounded-lg text-sm font-medium transition"
+                        to={`/users/edit/${u.id}`}
+                      >
+                        Edit
+                      </Link>
+                      <button
+                        className="inline-block bg-red-500 hover:bg-red-600 text-white px-3 py-1 rounded-lg text-sm font-medium transition"
+                        onClick={() => onDelete(u.id)}
+                      >
+                        Delete
+                      </button>
+                    </td>
+                  )}
+                </tr>
+              ))}
+
+              {page.content.length === 0 && (
+                <tr>
+                  <td
+                    className="px-4 py-4 border border-gray-700 text-center text-gray-400"
+                    colSpan={isAdmin ? 6 : 5}
+                  >
+                    Không có dữ liệu
+                  </td>
+                </tr>
+              )}
+            </tbody>
+          </table>
+        </div>
       </div>
     </div>
   );
